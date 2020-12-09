@@ -1,0 +1,2 @@
+
+    /* pCodecCtx = avcodec_alloc_context3(pCodec); */
