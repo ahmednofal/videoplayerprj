@@ -1,0 +1,4 @@
+-lavformat 
+-lavcodec 
+-lavutil 
+-lswscale 

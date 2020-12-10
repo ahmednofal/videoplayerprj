@@ -3,11 +3,12 @@
 #include <libswscale/swscale.h>
 #include <libavutil/frame.h>
 #include <libavutil/pixfmt.h> // for AV_PIX_FMT_RGB24 and AVPixelFormat
-#define SAMPLEAVIFILE "sample_960x540.avi"
+#define SAMPLEAVIFILE "sample_1920x1080.avi"
 void SaveFrame(AVFrame *pFrame, int width, int height, int iFrame) {
   FILE *pFile;
   char szFilename[32];
   int  y;
+  printf("%d * %d\n" , width, height);
   
   // Open file
   sprintf(szFilename, "frame%d.ppm", iFrame);
@@ -20,8 +21,8 @@ void SaveFrame(AVFrame *pFrame, int width, int height, int iFrame) {
   
   // Write pixel data
   //
-/* size_t fwrite(const void *ptr, size_t size, size_t nmemb, */
-                     /* FILE *stream); */
+/* size_t fwrite((1)const void *ptr, (2)size_t size, (3)size_t nmemb, */
+                     /* (4)FILE *stream); */
 /* The function fwrite() writes nmemb items of data, each size bytes long, to the stream pointed to by stream, obtaining  them  from  the */
 /*        location given by ptr. */
   for(y=0; y<height; y++)
@@ -30,6 +31,9 @@ void SaveFrame(AVFrame *pFrame, int width, int height, int iFrame) {
   // Close file
   fclose(pFile);
 }
+
+
+
 int main(int argc, char *argv[]) {
     AVFormatContext *pFormatCtx = NULL;
     AVCodecContext *pCodecCtx= NULL;
@@ -43,6 +47,7 @@ int main(int argc, char *argv[]) {
     int vidStreamIdx = 0;
     unsigned int nBytes;  
     uint8_t * buffer = NULL;
+
     av_register_all();
     if (argv[1] == NULL){
         filename = malloc(strlen(SAMPLEAVIFILE) * sizeof(char));
@@ -54,18 +59,12 @@ int main(int argc, char *argv[]) {
         strcpy(filename, argv[1]);
     }
     printf("using %s\n", filename);
-    if(avformat_open_input(&pFormatCtx, filename, NULL, NULL)!=0)
-    {
-        printf("couldnot open the file\n");
-        return -1; // Couldn't open file
-    }
+
+    avformat_open_input(&pFormatCtx, filename, NULL, NULL);
     // we opened the file now we should be able to
     // manipulate the audio and video of it
-
-    av_dump_format(pFormatCtx, 0, filename, 0);
     for (int i = 0; i < pFormatCtx->nb_streams; i++){
-        if (pFormatCtx->streams[i]->codec->codec_type == AVMEDIA_TYPE_VIDEO);
-/*             // we found the video get the idx */
+        if (pFormatCtx->streams[i]->codec->codec_type == AVMEDIA_TYPE_VIDEO)
         {
             vidStreamIdx = i;
             break;
@@ -74,50 +73,20 @@ int main(int argc, char *argv[]) {
     }
     pCodecCtx = pFormatCtx->streams[vidStreamIdx]->codec;
     pCodec = avcodec_find_decoder(pCodecCtx->codec_id);
-    /* pCodecCtx = avcodec_alloc_context3(pCodec); */
-    avcodec_copy_context(pCodecCtx, pCodecCtx);
-    if (pCodec == NULL){
-        printf("got no codec \n");
-    }
-    if (avcodec_open2(pCodecCtx, pCodec, ptrToDictList) < 0)
-    {
-        printf("got nothing on open");
-        return -1;
-    }
-
+    avcodec_open2(pCodecCtx, pCodec, ptrToDictList);
     pFrame = av_frame_alloc();
     buffer = av_malloc(nBytes * sizeof(uint8_t));
 
-    pCodecCtx->pix_fmt = AV_PIX_FMT_RGB24;
-    /* swsCtx = sws_getContext(pCodecCtx->width, */
-    /*     pCodecCtx->height, */
-    /*     pCodecCtx->pix_fmt, */
-    /*     pCodecCtx->width, */
-    /*     pCodecCtx->height, */
-    /*     AV_PIX_FMT_RGB24, */
-    /*     SWS_BILINEAR, */
-    /*     NULL, */
-    /*     NULL, */
-    /*     NULL */
-    /*     ); */
     int i = 0;
+
     while(av_read_frame(pFormatCtx, &pPacket) >= 0){
         // keep reading into a frame
-        if ( pPacket.stream_index == vidStreamIdx ){
-            /* avcodec_send_packet(pCodecCtx, &pPacket); */
+        if (pPacket.stream_index == vidStreamIdx){
             avcodec_decode_video2(pCodecCtx, pFrame, &receivedFrame, &pPacket);
             if(receivedFrame) {
-                // Convert the image from its native format to RGB
-                /* sws_scale(swsCtx, (uint8_t const * const *)pFrame->data, */
-                /*         pFrame->linesize, 0, pCodecCtx->height, */
-                /*         pFrame->data, pFrame->linesize); */
-
+                receivedFrame = 0;
                 // Save the frame to disk
-                if(++i<=5)
-                {
-
-                    /* nBytes = avpicture_get_size(AV_PIX_FMT_RGB24, pCodecCtx->width, pCodecCtx->height); */
-                    /* avpicture_fill((AVPicture *) pFrame, buffer, AV_PIX_FMT_RGB24, pCodecCtx->width, pCodecCtx->height); */
+                if(++i<=5){
                     SaveFrame(pFrame, pCodecCtx->width, pCodecCtx->height, i);
                 }
             }

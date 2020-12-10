@@ -1,2 +1,52 @@
 
     /* pCodecCtx = avcodec_alloc_context3(pCodec); */
+
+
+    /* swsCtx = sws_getContext(pCodecCtx->width, */
+    /*     pCodecCtx->height, */
+    /*     pCodecCtx->pix_fmt, */
+    /*     pCodecCtx->width, */
+    /*     pCodecCtx->height, */
+    /*     AV_PIX_FMT_RGB24, */
+    /*     SWS_BILINEAR, */
+    /*     NULL, */
+    /*     NULL, */
+    /*     NULL */
+    /*     ); */
+
+
+            /* avcodec_send_packet(pCodecCtx, &pPacket); */
+
+
+
+
+                /* sws_scale(swsCtx, (uint8_t const * const *)pFrame->data, */
+                /*         pFrame->linesize, 0, pCodecCtx->height, */
+                /*         pFrame->data, pFrame->linesize); */
+
+
+
+
+
+                    /* nBytes = avpicture_get_size(AV_PIX_FMT_RGB24, pCodecCtx->width, pCodecCtx->height); */
+                    /* avpicture_fill((AVPicture *) pFrame, buffer, AV_PIX_FMT_RGB24, pCodecCtx->width, pCodecCtx->height); */
+
+
+
+    /* pCodecCtx->pix_fmt = AV_PIX_FMT_RGB24; */
+
+    if (pCodec == NULL){
+        printf("got no codec \n");
+    }
+if (
+
+    {
+        printf("got nothing on open");
+        return -1;
+    }
+
+
+
+    /* avcodec_copy_context(pCodecCtx, pCodecCtx); */
+
+    /* av_dump_format(pFormatCtx, 0, filename, 0); */
